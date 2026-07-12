@@ -1,0 +1,50 @@
+Age
+Experience
+Notice_Period
+Resume_ATS_Score
+Technical_Score
+HR_Score
+Communication_Score
+Overall_Score
+Expected_Salary
+Gender_Female
+Gender_Male
+Gender_Other
+Location_Bangalore
+Location_Berlin
+Location_Chennai
+Location_Delhi
+Location_Dubai
+Location_Gurgaon
+Location_Hyderabad
+Location_Kolkata
+Location_London
+Location_Mumbai
+Location_New York
+Location_Pune
+Location_San Francisco
+Location_Singapore
+Location_Sydney
+Location_Toronto
+Education_PG
+Education_PhD
+Education_UG
+Department_Data Analytics
+Department_Finance
+Department_HR
+Department_IT & Engineering
+Department_Operations
+Department_Sales & Marketing
+Recruitment_Source_Agency
+Recruitment_Source_Campus Placement
+Recruitment_Source_Company Website
+Recruitment_Source_Employee Referral
+Recruitment_Source_Indeed
+Recruitment_Source_LinkedIn
+Recruitment_Source_Naukri.com
+Work_Mode_Hybrid
+Work_Mode_Onsite
+Work_Mode_Remote
+Employment_Type_Contract
+Employment_Type_Full-time
+Employment_Type_Intern
