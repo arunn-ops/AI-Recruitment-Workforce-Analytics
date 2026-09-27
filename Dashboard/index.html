@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Recruitment & Workforce Analytics Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+      <div class="brand-text">
+        <h2>Recruitment AI</h2>
+        <p>Workforce BI</p>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-tab="overview" data-title="Executive Overview">
+        <i class="fa-solid fa-house"></i> <span>Overview</span>
+      </li>
+      <li class="nav-item" data-tab="recruitment" data-title="Recruitment Analytics">
+        <i class="fa-solid fa-filter"></i> <span>Recruitment Analytics</span>
+      </li>
+      <li class="nav-item" data-tab="department" data-title="Department Performance">
+        <i class="fa-solid fa-building"></i> <span>Department Analytics</span>
+      </li>
+      <li class="nav-item" data-tab="recruiter" data-title="Recruiter Performance">
+        <i class="fa-solid fa-user-tie"></i> <span>Recruiter Performance</span>
+      </li>
+      <li class="nav-item" data-tab="candidate" data-title="Candidate Insights">
+        <i class="fa-solid fa-users"></i> <span>Candidate Analytics</span>
+      </li>
+      <li class="nav-item" data-tab="score" data-title="Score & Evaluation Analysis">
+        <i class="fa-solid fa-bullseye"></i> <span>Score Analysis</span>
+      </li>
+      <li class="nav-item" data-tab="salary" data-title="Salary & Wage Variance Analysis">
+        <i class="fa-solid fa-money-bill-wave"></i> <span>Salary Analysis</span>
+      </li>
+      <li class="nav-item" data-tab="ml" data-title="ML Predictive Analytics & Model Metrics">
+        <i class="fa-solid fa-brain"></i> <span>ML Analytics</span>
+      </li>
+      <li class="nav-item" data-tab="data" data-title="Hiring Summary Data Explorer">
+        <i class="fa-solid fa-table"></i> <span>Data Explorer</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <p>SQL DB: <strong>RecruitmentAnalytics</strong></p>
+      <p style="margin-top: 4px;">Glassmorphic UI v2.0</p>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Navigation Header -->
+    <header class="top-header">
+      <div class="header-title">
+        <h1 id="pageTitle">Executive Overview</h1>
+      </div>
+
+      <div class="db-status-badge">
+        <div class="pulse-dot"></div>
+        <span id="dbStatusText">Connecting to SQL Server...</span>
+      </div>
+
+      <div class="header-controls">
+        <select id="deptFilter" class="filter-select">
+          <option value="">All Departments</option>
+        </select>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Candidate / Role / ID...">
+        <button class="btn-primary" onclick="loadAllDashboardData()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+      </div>
+    </header>
+
+    <!-- Content Body -->
+    <main class="content-body" style="background-image: url('/PowerBI/Dashboard_Background.png'); background-size: cover;">
+      
+      <!-- 1. OVERVIEW TAB -->
+      <section id="tab-overview" class="tab-section active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-title">Total Candidates</div>
+            <div class="kpi-value" id="kpi-tot-candidates">0</div>
+            <div class="kpi-subtitle">Unique Applicants</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Total Applications</div>
+            <div class="kpi-value" id="kpi-tot-apps">0</div>
+            <div class="kpi-subtitle">Pipeline Submissions</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-title">Total Hired</div>
+            <div class="kpi-value" id="kpi-tot-hired">0</div>
+            <div class="kpi-subtitle">Successful Onboardings</div>
+          </div>
+          <div class="kpi-card warning">
+            <div class="kpi-title">Hiring Rate</div>
+            <div class="kpi-value" id="kpi-hiring-rate">0%</div>
+            <div class="kpi-subtitle">Selection Conversion</div>
+          </div>
+          <div class="kpi-card purple">
+            <div class="kpi-title">Avg Overall Score</div>
+            <div class="kpi-value" id="kpi-avg-score">0 / 100</div>
+            <div class="kpi-subtitle">Weighted Metric</div>
+          </div>
+          <div class="kpi-card pink">
+            <div class="kpi-title">Avg Expected Salary</div>
+            <div class="kpi-value" id="kpi-avg-exp-sal">₹0 L</div>
+            <div class="kpi-subtitle">Candidate Expected CTC</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-title">Avg Offered Salary</div>
+            <div class="kpi-value" id="kpi-avg-off-sal">₹0 L</div>
+            <div class="kpi-subtitle">Extended Offer CTC</div>
+          </div>
+        </div>
+
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Recruitment Conversion Funnel</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-overview-funnel"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Executive Summary Overview</span>
+            </div>
+            <div style="padding: 15px; font-size: 0.92rem; color: var(--text-muted); line-height: 1.8;">
+              <p>Welcome to the <strong>AI Recruitment & Workforce Analytics Dashboard</strong>. This end-to-end intelligence platform connects directly to the <code>RecruitmentAnalytics</code> SQL database and leverages a Random Forest predictive machine learning engine.</p>
+              <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>Star Schema Integration:</strong> Powered by <code>v_Hiring_Summary</code>, <code>v_Recruiter_Performance</code>, and <code>v_Department_Recruitment_Metrics</code>.</li>
+                <li><strong>Source Conversion ROI:</strong> Track Employee Referrals vs. LinkedIn vs. Job Portals.</li>
+                <li><strong>ML Predictive Screening:</strong> Uses evaluation metrics and candidate feature weights trained on 10,200 records.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. RECRUITMENT ANALYTICS TAB -->
+      <section id="tab-recruitment" class="tab-section">
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Recruitment Pipeline Status Breakdown</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-rec-status"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Recruitment Source Conversion Rate (%)</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-rec-source"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Applications Volume by Job Role</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-rec-roles"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Monthly Application & Hiring Trends</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-rec-trend"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. DEPARTMENT ANALYTICS TAB -->
+      <section id="tab-department" class="tab-section">
+        <div class="chart-grid-2-1">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Applications vs. Hires by Department</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-dept-apps"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Department SQL Metrics View (dbo.v_Department_Recruitment_Metrics)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Applications</th>
+                    <th>Hired</th>
+                    <th>Hiring Rate</th>
+                    <th>Avg Age</th>
+                    <th>Avg Notice</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-dept-metrics"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. RECRUITER PERFORMANCE TAB -->
+      <section id="tab-recruiter" class="tab-section">
+        <div class="chart-card" style="margin-bottom: 25px;">
+          <div class="chart-card-header">
+            <span class="chart-card-title">Recruiter Managed Applications vs. Hires</span>
+          </div>
+          <div class="chart-body" style="min-height: 300px;">
+            <canvas id="chart-recruiter-perf"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-card-title">Recruiter Performance Metrics (dbo.v_Recruiter_Performance View)</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Recruiter Name</th>
+                  <th>Applications Managed</th>
+                  <th>Interviewed</th>
+                  <th>Offered</th>
+                  <th>Hired</th>
+                  <th>Hiring Rate (%)</th>
+                  <th>Avg Candidate Score</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-recruiter-metrics"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CANDIDATE ANALYTICS TAB -->
+      <section id="tab-candidate" class="tab-section">
+        <div class="chart-grid-3">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Education Level Distribution</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-cand-edu"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Top Candidate Locations</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-cand-loc"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Candidate Experience Breakdown</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-cand-exp"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SCORE ANALYSIS TAB -->
+      <section id="tab-score" class="tab-section">
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Average Evaluation Scores by Status</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-scores-status"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Score Distributions by Department</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-scores-dept"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. SALARY ANALYSIS TAB -->
+      <section id="tab-salary" class="tab-section">
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Expected vs. Offered Salary by Department</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-salary-dept"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Average Expected CTC by Job Role</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-salary-role"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. ML ANALYTICS TAB -->
+      <section id="tab-ml" class="tab-section">
+        <div class="kpi-grid">
+          <div class="kpi-card success">
+            <div class="kpi-title">Random Forest Model Accuracy</div>
+            <div class="kpi-value" id="ml-accuracy">67.11%</div>
+            <div class="kpi-subtitle">Evaluated on Test Partition</div>
+          </div>
+          <div class="kpi-card purple">
+            <div class="kpi-title">Dataset Partitions</div>
+            <div class="kpi-value" id="ml-samples">8160 Train / 2040 Test</div>
+            <div class="kpi-subtitle">80% Train - 20% Test Split</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Algorithm Config</div>
+            <div class="kpi-value">100 Trees</div>
+            <div class="kpi-subtitle">Max Depth = 10, Random State = 42</div>
+          </div>
+        </div>
+
+        <div class="chart-grid-2">
+          <!-- Top Feature Importance -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Top 10 Model Feature Importances</span>
+            </div>
+            <div class="chart-body">
+              <canvas id="chart-ml-features"></canvas>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix Visual -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Confusion Matrix Evaluation</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+              <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted);">True Negatives (Correct Rejected)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--success);" id="cm-tn">941</div>
+              </div>
+              <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted);">False Positives (Incorrect Selected)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--danger);" id="cm-fp">127</div>
+              </div>
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted);">False Negatives (Incorrect Rejected)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning);" id="cm-fn">544</div>
+              </div>
+              <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid var(--primary); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted);">True Positives (Correct Selected)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);" id="cm-tp">428</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Candidate Selection Predictor Widget -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Live Candidate Eligibility Predictor (ML Simulator)</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-top: 15px;">
+            <form id="predictorForm" class="predictor-form">
+              <div class="form-group">
+                <label>Resume ATS Score (0 - 100)</label>
+                <input type="number" id="pred-ats" class="form-control" min="0" max="100" value="82" required>
+              </div>
+              <div class="form-group">
+                <label>Technical Score (0 - 100)</label>
+                <input type="number" id="pred-tech" class="form-control" min="0" max="100" value="78" required>
+              </div>
+              <div class="form-group">
+                <label>HR Interview Score (0 - 100)</label>
+                <input type="number" id="pred-hr" class="form-control" min="0" max="100" value="85" required>
+              </div>
+              <div class="form-group">
+                <label>Communication Score (0 - 100)</label>
+                <input type="number" id="pred-comm" class="form-control" min="0" max="100" value="80" required>
+              </div>
+              <div style="grid-column: span 2; margin-top: 10px;">
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;"><i class="fa-solid fa-calculator"></i> Run ML Selection Prediction</button>
+              </div>
+            </form>
+
+            <div class="predictor-result-box">
+              <div class="result-score" id="pred-prob">78.5%</div>
+              <div class="result-label" id="pred-outcome" style="color: var(--success);">Selected</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;" id="pred-overall-calc">Calculated Overall Score: 81.1 / 100</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. DATA EXPLORER TAB -->
+      <section id="tab-data" class="tab-section">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-card-title">Candidate Hiring Records (SQL View: dbo.v_Hiring_Summary)</span>
+            <span id="table-count-badge" class="badge badge-applied">0 Candidates</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Candidate ID</th>
+                  <th>Name</th>
+                  <th>Department</th>
+                  <th>Job Role</th>
+                  <th>Location</th>
+                  <th>Overall Score</th>
+                  <th>Expected Salary</th>
+                  <th>Status</th>
+                  <th>Recruiter</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-hiring-summary"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/chart_configs.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
